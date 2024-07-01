@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<title>ascii art web</title>
+<head>ascii art web</head>
+<body>
+    <p>enter text</p>
+    <form method="post">
+    <textarea placeholder="input text here" name="words"></textarea>
+    
+    <select name="Files">
+        <option value="standard.txt"> one</option>
+        <option value="shadow.txt">two</option>
+        <option value="thinkertoy.txt">three</option>
+    </select>
+    <button>submit</button>
+</form>
+    <pre> 
+        <p>display ascii</p>
+        {{.Res}}
+    </pre>
+</body>
