@@ -1,59 +1,64 @@
 package main
 
 import (
-	"html/template"
 	"log"
 	"net/http"
 	"strings"
+	"text/template"
 
 	"ascii-art-web/ascii"
 )
 
-var templates = template.Must(template.ParseFiles("index.html"))
-
-func main() {
-	http.HandleFunc("/", Home)
-	http.HandleFunc("/web", Web)
-	log.Println("Server started at http://localhost:8080")
-	http.ListenAndServe(":8080", nil)
-}
-
-func Home(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	err := templates.ExecuteTemplate(w, "index.html", nil)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+func mainss(input []string) string {
+	inputs := input[0]
+	inputs = strings.ReplaceAll(inputs, "\\n", "\n")
+	filenames := input[1]
+	return ascii.DisplayText(inputs, filenames)
 }
 
 type Data struct {
-	Res string
+	Result string
 }
 
-func Web(w http.ResponseWriter, r *http.Request) {
+func handler(w http.ResponseWriter, r *http.Request) {
+	// if r.Method != http.MethodPost {
+	// 	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	// 	return
+	// }
+
 	err := r.ParseForm()
 	if err != nil {
-		http.Error(w, "Error with the form", http.StatusMethodNotAllowed)
+		http.Error(w, "Error parsing form", http.StatusBadRequest)
 		return
 	}
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	words := r.Form.Get("words")
-	files := r.Form.Get("Files")
 
-	lines := strings.Split(string(words), "\n")
-	result := ascii.DisplayText(files, lines)
+	var resultBuilder strings.Builder
+	if strings.Contains(r.Form.Get("Word"), "\n") {
+		myslice := strings.Split(r.Form.Get("Word"), "\r\n")
+		for _, word := range myslice {
+			resultBuilder.WriteString(mainss([]string{word, r.Form.Get("Banner")}))
+			resultBuilder.WriteString("\n")
+		}
+	} else {
+		resultBuilder.WriteString(mainss([]string{r.Form.Get("Word"), r.Form.Get("Banner")}))
+	}
 
 	data := Data{
-		Res: result,
+		Result: resultBuilder.String(),
 	}
-	err = templates.ExecuteTemplate(w, "index.html", data)
+
+	tmpl, err := template.ParseFiles("index.html")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Fatalf("ERROR PARSING TEMPLATE %v", err)
 	}
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Fatalf("ERROR EXECUTING TEMPLATE %v", err)
+	}
+}
+
+func main() {
+	http.HandleFunc("/", handler)
+	log.Println("starting server on :8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
