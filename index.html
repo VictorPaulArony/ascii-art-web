@@ -1,20 +1,22 @@
 <!DOCTYPE html>
-<title>ascii art web</title>
-<head>ascii art web</head>
+<html>
+<head>
+    <title>ASCII Art Web</title>
+</head>
 <body>
-    <p>enter text</p>
-    <form method="post">
-    <textarea placeholder="input text here" name="words"></textarea>
-    
-    <select name="Files">
-        <option value="standard.txt"> one</option>
-        <option value="shadow.txt">two</option>
-        <option value="thinkertoy.txt">three</option>
-    </select>
-    <button>submit</button>
-</form>
-    <pre> 
-        <p>display ascii</p>
-        {{.Res}}
+    <p>Enter text</p>
+    <form method="post" action="/">
+        <textarea placeholder="Input text here" name="Word"></textarea>
+        <select name="Banner">
+            <option value="standard.txt">Standard</option>
+            <option value="shadow.txt">Shadow</option>
+            <option value="thinkertoy.txt">Thinkertoy</option>
+        </select>
+        <button type="submit">Submit</button>
+    </form>
+    <pre>
+        <p>Display ASCII</p>
+        {{.Result}}
     </pre>
 </body>
+</html>
