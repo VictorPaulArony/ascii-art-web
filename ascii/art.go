@@ -2,20 +2,19 @@ package ascii
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"strings"
 )
 
 // DisplayText displays the provided text along with content lines
-func DisplayText(input, filename string) string {
+func DisplayText(input, filename string) (string, error) {
 	var res string
 	if input == "" {
-		return ""
+		return "", nil
 	}
 
 	if input == "\\n" || input == "\n" {
-		return "\n"
+		return "\n", nil
 	}
 
 	// make newline and tab printable in the terminal output
@@ -24,8 +23,7 @@ func DisplayText(input, filename string) string {
 
 	contentLines, err := readFile(filename)
 	if err != nil {
-		fmt.Println("Error reading file:", err)
-		return ""
+		return "", err
 	}
 
 	wordslice := strings.Split(input, "\\n")
@@ -37,11 +35,11 @@ func DisplayText(input, filename string) string {
 			if English(word) {
 				res += PrintWord(word, contentLines) + "\n"
 			} else {
-				res += "Invalid input: not accepted\n"
+				res += "400 - Bad Request Invalid input: not accepted\n"
 			}
 		}
 	}
-	return res
+	return res, nil
 }
 
 // English checks if a word contains only English alphabets
